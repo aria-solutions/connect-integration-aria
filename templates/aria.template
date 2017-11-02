@@ -128,12 +128,6 @@ Rules:
     - Assert:
         Fn::Not:
         - Fn::Equals:
-          - Ref: GoogleKey
-          - ''
-      AssertDescription: GoogleKey is required
-    - Assert:
-        Fn::Not:
-        - Fn::Equals:
           - Ref: ConnectS3BucketName
           - ''
       AssertDescription: ConnectS3BucketName is required

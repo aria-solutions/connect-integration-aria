@@ -36,7 +36,8 @@ def handler(event, context):
       test_salesforce(production, consumer_key, consumer_secret, username, password)
 
       key = event['ResourceProperties']['GOOGLE_KEY']
-      test_google_speech(key)
+      if key:
+        test_google_speech(key)
 
     elif event['RequestType'] == 'Update':
       pass
