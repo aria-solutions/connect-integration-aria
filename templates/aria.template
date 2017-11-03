@@ -5,7 +5,12 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
-        default: Toolkit for Amazon Connect Integration by Aria Solutions
+        default: Reports and Recordings
+      Parameters:
+      - ConnectS3BucketName
+      - GoogleKey
+    - Label:
+        default: Salesforce
       Parameters:
       - SalesforceProduction
       - SalesforceConsumerKey
@@ -14,24 +19,27 @@ Metadata:
       - SalesforcePassword
       - SalesforceAccessToken
       - SalesforceVersion
-      - GoogleKey
+
     ParameterLabels:
       SalesforceProduction:
-        default: SF Production Environment
+        default: Production Environment
       SalesforceConsumerKey:
-        default: SF Consumer key
+        default: Consumer key
       SalesforceConsumerSecret:
-        default: SF Consumer secret
+        default: Consumer secret
       SalesforceUsername:
-        default: SF Username
+        default: Username
       SalesforcePassword:
-        default: SF Password
+        default: Password
       SalesforceAccessToken:
-        default: SF Access Token
+        default: Access Token
       SalesforceVersion:
-        default: SF API Version
+        default: API Version
+      ConnectS3BucketName:
+        default: Amazon Connect S3 Bucket name
       GoogleKey:
         default: Google Key
+      
 Parameters:
   SalesforceProduction:
     Default: false
@@ -60,12 +68,16 @@ Parameters:
     Description: ''
     Type: String
   SalesforceVersion:
-    Default: ''
+    Default: 'v40.0'
     Description: ''
     Type: String
   GoogleKey:
     Default: ''
     Description: with Speech API enabled
+    Type: String
+  ConnectS3BucketName:
+    Default: ''
+    Description: where reports and recordings are saved
     Type: String
 Rules:
   RegionSupport:
@@ -116,9 +128,9 @@ Rules:
     - Assert:
         Fn::Not:
         - Fn::Equals:
-          - Ref: GoogleKey
+          - Ref: ConnectS3BucketName
           - ''
-      AssertDescription: GoogleKey is required
+      AssertDescription: ConnectS3BucketName is required
 Resources:
   IntegrationTestFunctionExecutionRole:
     Type: AWS::IAM::Role
@@ -145,9 +157,9 @@ Resources:
       Runtime: python3.6
       Timeout: 30
       Code:
-        S3Bucket: aria.connect.toolkit
+        S3Bucket: quickstart-reference
         S3Key:
-          Fn::Sub: integration/basic/latest/functions/packages/integration-test/integration-test.zip
+          Fn::Sub: connect/integration/aria/latest/functions/packages/integration-test/integration-test.zip
   IntegrationTest:
     Type: Custom::IntegrationTest
     Version: '1.0'
@@ -182,10 +194,22 @@ Resources:
             - lambda.amazonaws.com
           Action:
           - sts:AssumeRole
+      Policies:
+        - PolicyName: 'connect-bucket-read'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              Effect: Allow
+              Action: 
+                - 's3:GetObject'
+              Resource: !Join 
+                - ''
+                - - 'arn:aws:s3:::' 
+                  - Ref: ConnectS3BucketName
+                  - '/*' 
       Path: /
       ManagedPolicyArns:
       - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-      - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
   LambdaBasicExec:
     Type: AWS::IAM::Role
     Properties:
@@ -208,7 +232,7 @@ Resources:
       Runtime: python3.6
       Description: Toolkit for Amazon Connect by Aria Solutions - Create
       MemorySize: 128
-      Timeout: 30
+      Timeout: 7
       Role:
         Fn::GetAtt: LambdaBasicExec.Arn
       Environment:
@@ -228,9 +252,9 @@ Resources:
           SF_VERSION:
             Ref: SalesforceVersion
       Code:
-        S3Bucket: aria.connect.toolkit
+        S3Bucket: quickstart-reference
         S3Key:
-          Fn::Sub: integration/basic/latest/functions/packages/integration/integration.zip
+          Fn::Sub: connect/integration/aria/latest/functions/packages/integration/integration.zip
   SalesforceCreateFunctionPermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -247,7 +271,7 @@ Resources:
       Runtime: python3.6
       Description: Toolkit for Amazon Connect by Aria Solutions - Salesforce - Update
       MemorySize: 128
-      Timeout: 30
+      Timeout: 7
       Role:
         Fn::GetAtt: LambdaBasicExec.Arn
       Environment:
@@ -267,9 +291,9 @@ Resources:
           SF_VERSION:
             Ref: SalesforceVersion
       Code:
-        S3Bucket: aria.connect.toolkit
+        S3Bucket: quickstart-reference
         S3Key:
-          Fn::Sub: integration/basic/latest/functions/packages/integration/integration.zip
+          Fn::Sub: connect/integration/aria/latest/functions/packages/integration/integration.zip
   SalesforceUpdateFunctionPermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -286,7 +310,7 @@ Resources:
       Runtime: python3.6
       Description: Toolkit for Amazon Connect by Aria Solutions - Salesforce - Lookup
       MemorySize: 128
-      Timeout: 30
+      Timeout: 7
       Role:
         Fn::GetAtt: LambdaBasicExec.Arn
       Environment:
@@ -306,9 +330,9 @@ Resources:
           SF_VERSION:
             Ref: SalesforceVersion
       Code:
-        S3Bucket: aria.connect.toolkit
+        S3Bucket: quickstart-reference
         S3Key:
-          Fn::Sub: integration/basic/latest/functions/packages/integration/integration.zip
+          Fn::Sub: connect/integration/aria/latest/functions/packages/integration/integration.zip
   SalesforceLookupFunctionPermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -326,7 +350,7 @@ Resources:
       Description: Toolkit for Amazon Connect by Aria Solutions - Salesforce - Interval
         Agent
       MemorySize: 128
-      Timeout: 30
+      Timeout: 60
       Role:
         Fn::GetAtt: LambdaBasicExecWithS3Read.Arn
       Environment:
@@ -346,9 +370,9 @@ Resources:
           SF_VERSION:
             Ref: SalesforceVersion
       Code:
-        S3Bucket: aria.connect.toolkit
+        S3Bucket: quickstart-reference
         S3Key:
-          Fn::Sub: integration/basic/latest/functions/packages/integration/integration.zip
+          Fn::Sub: connect/integration/aria/latest/functions/packages/integration/integration.zip
   SalesforceIntervalQueueFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -357,7 +381,7 @@ Resources:
       Description: Toolkit for Amazon Connect by Aria Solutions - Salesforce - Interval
         Queue
       MemorySize: 128
-      Timeout: 30
+      Timeout: 60
       Role:
         Fn::GetAtt: LambdaBasicExecWithS3Read.Arn
       Environment:
@@ -377,9 +401,9 @@ Resources:
           SF_ACCESS_TOKEN:
             Ref: SalesforceAccessToken
       Code:
-        S3Bucket: aria.connect.toolkit
+        S3Bucket: quickstart-reference
         S3Key:
-          Fn::Sub: integration/basic/latest/functions/packages/integration/integration.zip
+          Fn::Sub: connect/integration/aria/latest/functions/packages/integration/integration.zip
   TranscribeRecordingFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -387,7 +411,7 @@ Resources:
       Runtime: python3.6
       Description: Toolkit for Amazon Connect by Aria Solutions - Transcribe Recording
       MemorySize: 128
-      Timeout: 30
+      Timeout: 60
       Role:
         Fn::GetAtt: LambdaBasicExecWithS3Read.Arn
       Environment:
@@ -409,9 +433,9 @@ Resources:
           GOOGLE_KEY:
             Ref: GoogleKey
       Code:
-        S3Bucket: aria.connect.toolkit
+        S3Bucket: quickstart-reference
         S3Key:
-          Fn::Sub: integration/basic/latest/functions/packages/integration/integration.zip
+          Fn::Sub: connect/integration/aria/latest/functions/packages/integration/integration.zip
 Outputs:
   LambdaBasicExec:
     Description: Lambda Function Execution Role ARN
