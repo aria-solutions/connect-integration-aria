@@ -6,77 +6,93 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
-        default: Reports and Recordings
+        default: Amazon Connect Configuration
       Parameters:
       - ConnectS3BucketName
-      - GoogleKey
+      - TranscriptionAPIKey
     - Label:
-        default: Salesforce
+        default: Salesforce API Configuration
       Parameters:
       - SalesforceProduction
+      - SalesforceVersion
       - SalesforceConsumerKey
       - SalesforceConsumerSecret
+      - SalesforceAccessToken
       - SalesforceUsername
       - SalesforcePassword
-      - SalesforceAccessToken
-      - SalesforceVersion
     ParameterLabels:
-      SalesforceProduction:
-        default: Production Environment
+      ConnectS3BucketName:
+        default: S3 Bucket Name
+      TranscriptionAPIKey:
+        default: Transcription API Key
+      SalesforceAccessToken:
+        default: Access Token
       SalesforceConsumerKey:
         default: Consumer key
       SalesforceConsumerSecret:
         default: Consumer secret
-      SalesforceUsername:
-        default: Username
       SalesforcePassword:
         default: Password
-      SalesforceAccessToken:
-        default: Access Token
+      SalesforceProduction:
+        default: Production Environment
+      SalesforceUsername:
+        default: Username
       SalesforceVersion:
         default: API Version
-      ConnectS3BucketName:
-        default: Amazon Connect S3 Bucket name
-      GoogleKey:
-        default: Google Key
 Parameters:
   SalesforceProduction:
-    Default: false
+    Default: true
     Description: True for Production Environment, False for Sandbox
     Type: String
     AllowedPattern: ^([Tt]rue|[Ff]alse)$
+    AllowedValues:
+    - true
+    - true
+    - false
+    - false
     ConstraintDescription: True or False
   SalesforceConsumerKey:
     Default: ''
-    Description: ''
+    Description: Your Salesforce consumer key will be available after you have completed
+      installation of the Salesforce portion of this Toolkit. See section 4.1 on "Toolkit for Amazon Connect Setup and User Guide"
+      for instructions on configuring your Salesforce environment.
     Type: String
   SalesforceConsumerSecret:
     Default: ''
-    Description: ''
+    Description: Your Salesforce consumer secret is available in Salesforce immediately
+      to the right of your Salesforce Consumer Key. See section 4.1 on "Toolkit for Amazon Connect Setup and User Guide"
+      for instructions on retrieving this secret.
     Type: String
   SalesforceUsername:
-    Default: ''
-    Description: 'example: user@domain.com'
+    Default: Salesforce API Username
+    Description: The username of a valid Salesforce API account for your environment.
+      For example, user@domain.com
     Type: String
   SalesforcePassword:
     Default: ''
-    Description: ''
+    Description: The password of a valid Salesforce API account for your environment.
+      This account must be the same one as entered in the “Salesforce API Configuration
+      Username” parameter above.
     Type: String
+    NoEcho: true
   SalesforceAccessToken:
     Default: ''
-    Description: ''
+    Description: The security token of the Salesforce API user account used above.
+      See section 4.1 on "Toolkit for Amazon Connect Setup and User Guide" for instructions on generating the token
+      for this account.
     Type: String
   SalesforceVersion:
     Default: v40.0
-    Description: ''
+    Description: To find the Salesforce Edition and API Version please visit https://help.salesforce.com/articleView?id=000199268&type=1
     Type: String
-  GoogleKey:
+  TranscriptionAPIKey:
     Default: ''
-    Description: with Speech API enabled
+    Description: OPTIONAL. API keys for transcription service. For example, Cloud
+      Speech API
     Type: String
   ConnectS3BucketName:
     Default: ''
-    Description: where reports and recordings are saved
+    Description: S3 Bucket where reports and recordings are saved
     Type: String
 Rules:
   RegionSupport:
@@ -180,7 +196,7 @@ Resources:
       SF_VERSION:
         Ref: SalesforceVersion
       GOOGLE_KEY:
-        Ref: GoogleKey
+        Ref: TranscriptionAPIKey
   LambdaBasicExecWithS3Read:
     Type: AWS::IAM::Role
     Properties:
@@ -431,7 +447,7 @@ Resources:
           SF_VERSION:
             Ref: SalesforceVersion
           GOOGLE_KEY:
-            Ref: GoogleKey
+            Ref: TranscriptionAPIKey
       Code:
         S3Bucket: quickstart-reference
         S3Key:
