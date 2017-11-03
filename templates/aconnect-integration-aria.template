@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Toolkit for Amazon Connect Integration by Aria Solutions
+Description: Aria Solutions Salesforce Toolkit Integration for Amazon Connect Quick Start
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
