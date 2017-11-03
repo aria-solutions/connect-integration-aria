@@ -19,7 +19,6 @@ Metadata:
       - SalesforcePassword
       - SalesforceAccessToken
       - SalesforceVersion
-
     ParameterLabels:
       SalesforceProduction:
         default: Production Environment
@@ -39,7 +38,6 @@ Metadata:
         default: Amazon Connect S3 Bucket name
       GoogleKey:
         default: Google Key
-      
 Parameters:
   SalesforceProduction:
     Default: false
@@ -68,7 +66,7 @@ Parameters:
     Description: ''
     Type: String
   SalesforceVersion:
-    Default: 'v40.0'
+    Default: v40.0
     Description: ''
     Type: String
   GoogleKey:
@@ -195,18 +193,19 @@ Resources:
           Action:
           - sts:AssumeRole
       Policies:
-        - PolicyName: 'connect-bucket-read'
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              Effect: Allow
-              Action: 
-                - 's3:GetObject'
-              Resource: !Join 
-                - ''
-                - - 'arn:aws:s3:::' 
-                  - Ref: ConnectS3BucketName
-                  - '/*' 
+      - PolicyName: connect-bucket-read
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            Effect: Allow
+            Action:
+            - s3:GetObject
+            Resource:
+              !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - Ref: ConnectS3BucketName
+                - /*
       Path: /
       ManagedPolicyArns:
       - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
