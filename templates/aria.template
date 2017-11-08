@@ -54,14 +54,15 @@ Parameters:
   SalesforceConsumerKey:
     Default: ''
     Description: Your Salesforce consumer key will be available after you have completed
-      installation of the Salesforce portion of this Toolkit. See section 4.1 on "Toolkit for Amazon Connect Setup and User Guide"
-      for instructions on configuring your Salesforce environment.
+      installation of the Salesforce portion of this Toolkit. See section 4.1 on "Toolkit
+      for Amazon Connect Setup and User Guide" for instructions on configuring your
+      Salesforce environment.
     Type: String
   SalesforceConsumerSecret:
     Default: ''
     Description: Your Salesforce consumer secret is available in Salesforce immediately
-      to the right of your Salesforce Consumer Key. See section 4.1 on "Toolkit for Amazon Connect Setup and User Guide"
-      for instructions on retrieving this secret.
+      to the right of your Salesforce Consumer Key. See section 4.1 on "Toolkit for
+      Amazon Connect Setup and User Guide" for instructions on retrieving this secret.
     Type: String
   SalesforceUsername:
     Default: Salesforce API Username
@@ -78,8 +79,8 @@ Parameters:
   SalesforceAccessToken:
     Default: ''
     Description: The security token of the Salesforce API user account used above.
-      See section 4.1 on "Toolkit for Amazon Connect Setup and User Guide" for instructions on generating the token
-      for this account.
+      See section 4.1 on "Toolkit for Amazon Connect Setup and User Guide" for instructions
+      on generating the token for this account.
     Type: String
   SalesforceVersion:
     Default: v40.0
