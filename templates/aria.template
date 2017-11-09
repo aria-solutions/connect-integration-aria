@@ -92,8 +92,12 @@ Parameters:
       Speech API
     Type: String
   ConnectS3BucketName:
-    Default: ''
-    Description: S3 Bucket where reports and recordings are saved
+    AllowedPattern: connect-[0-9a-f]{12}
+    ConstraintDescription: Invalid S3 Bucket format. Must be in the form connect-xxxxxxxxxxxx
+    Description: Please refer to http://docs.aws.amazon.com/connect/latest/adminguide/amazon-connect-instance.html#datastorage
+      for details on how retrieve the S3 bucket associated with your Amazon Connect
+      instance. This is the S3 bucket where Amazon Connect stores call recordings
+      and scheduled reports.
     Type: String
 Rules:
   RegionSupport:
@@ -219,11 +223,7 @@ Resources:
             Action:
             - s3:GetObject
             Resource:
-              !Join
-              - ''
-              - - 'arn:aws:s3:::'
-                - Ref: ConnectS3BucketName
-                - /*
+              Fn::Sub: arn:aws:s3:::${ConnectS3BucketName}
       Path: /
       ManagedPolicyArns:
       - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
