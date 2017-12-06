@@ -92,9 +92,10 @@ Parameters:
       Speech API
     Type: String
   ConnectS3BucketName:
-    Description: This is the S3 bucket where Amazon Connect stores call recordings and scheduled reports.
-    Please refer to http://docs.aws.amazon.com/connect/latest/adminguide/amazon-connect-instance.html#datastorage
-    for details on how retrieve the S3 bucket associated with your Amazon Connect instance.
+    Description: This is the S3 bucket where Amazon Connect stores call recordings
+      and scheduled reports. Please refer to http://docs.aws.amazon.com/connect/latest/adminguide/amazon-connect-instance.html#datastorage
+      for details on how retrieve the S3 bucket associated with your Amazon Connect
+      instance.
     Type: String
 Rules:
   RegionSupport:
