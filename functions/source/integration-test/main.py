@@ -20,33 +20,29 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH 
 THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
-import cfnresponse
+from cfnresponse import cfnresponse
 import traceback
 from botocore.vendored import requests
 import io, wave, base64
 
+@cfnresponse()
 def handler(event, context):
-  try:
-    if event['RequestType'] == 'Create':
-      production = event['ResourceProperties']['SF_PRODUCTION'].lower() == "true"
-      consumer_key = event['ResourceProperties']['SF_CONSUMER_KEY']
-      consumer_secret = event['ResourceProperties']['SF_CONSUMER_SECRET']
-      username = event['ResourceProperties']['SF_USERNAME']
-      password = event['ResourceProperties']['SF_PASSWORD'] + event['ResourceProperties']['SF_ACCESS_TOKEN']
-      test_salesforce(production, consumer_key, consumer_secret, username, password)
+  if event['RequestType'] == 'Create':
+    production = event['ResourceProperties']['SF_PRODUCTION'].lower() == "true"
+    consumer_key = event['ResourceProperties']['SF_CONSUMER_KEY']
+    consumer_secret = event['ResourceProperties']['SF_CONSUMER_SECRET']
+    username = event['ResourceProperties']['SF_USERNAME']
+    password = event['ResourceProperties']['SF_PASSWORD'] + event['ResourceProperties']['SF_ACCESS_TOKEN']
+    test_salesforce(production, consumer_key, consumer_secret, username, password)
 
-      key = event['ResourceProperties']['GOOGLE_KEY']
-      if key:
-        test_google_speech(key)
+    key = event['ResourceProperties']['GOOGLE_KEY']
+    if key:
+      test_google_speech(key)
 
-    elif event['RequestType'] == 'Update':
-      pass
-    elif event['RequestType'] == 'Delete':
-      pass
-    cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, '')
-  except:
-    print(traceback.print_exc())
-    cfnresponse.send(event, context, cfnresponse.FAILED, {}, '')
+  elif event['RequestType'] == 'Update':
+    pass
+  elif event['RequestType'] == 'Delete':
+    pass
 
 def test_salesforce(production, consumer_key, consumer_secret, username, password):
   print('Testing Salesforce crendentials')

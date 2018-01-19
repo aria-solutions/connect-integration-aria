@@ -24,7 +24,7 @@ import datetime, os, json, io, csv, urllib.parse, logging
 import boto3, botocore, botocore.stub
 
 from salesforce import Salesforce
-
+from act_util import get_arg
 logger = logging.getLogger()
 
 s3 = boto3.client("s3")

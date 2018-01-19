@@ -6,25 +6,27 @@
 #  See the License for the specific language governing permissions and limitations under the License.
 from __future__ import print_function
 from botocore.vendored import requests
+
+import sys
+import traceback
 import json
 
 SUCCESS = "SUCCESS"
 FAILED = "FAILED"
 
-
-def send(event, context, responseStatus, responseData, physicalResourceId):
+def send(event, context, responseStatus, responseData, physicalResourceId, reason=None):
     responseUrl = event['ResponseURL']
 
     print(responseUrl)
 
     responseBody = {}
     responseBody['Status'] = responseStatus
-    responseBody['Reason'] = 'See the details in CloudWatch Log Stream: ' + context.log_stream_name
+    responseBody['Reason'] = reason if reason else 'See the details in CloudWatch Log Stream: %s' % context.log_stream_name
     responseBody['PhysicalResourceId'] = physicalResourceId or context.log_stream_name
     responseBody['StackId'] = event['StackId']
     responseBody['RequestId'] = event['RequestId']
     responseBody['LogicalResourceId'] = event['LogicalResourceId']
-    responseBody['Data'] = responseData
+    responseBody['Data'] = responseData if responseData else {}
 
     json_responseBody = json.dumps(responseBody)
 
@@ -42,3 +44,24 @@ def send(event, context, responseStatus, responseData, physicalResourceId):
         print("Status code: " + response.reason)
     except Exception as e:
         print("send(..) failed executing requests.put(..): " + str(e))
+
+class cfnresponse(object):
+    def __init__(self, resource_id=None):
+        self.resource_id = resource_id
+
+    def __call__(self, fn):
+        def wrapper(event, context):
+            data = None
+            msg = 'See the details in CloudWatch Log Stream: https://console.aws.amazon.com/cloudwatch/home?#logEventViewer:group=%s;stream=%s' % (context.log_group_name, context.log_stream_name)
+            
+            try:
+                data = fn(event, context)
+                status = SUCCESS
+            except:
+                traceback.print_exc()
+                msg = '%s. %s' % (sys.exc_info()[1], msg)
+                status = FAILED
+
+            send(event, context, status, data, self.resource_id, msg)
+            return data
+        return wrapper
