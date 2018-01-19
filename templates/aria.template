@@ -221,7 +221,7 @@ Resources:
             Action:
             - s3:GetObject
             Resource:
-              Fn::Sub: arn:aws:s3:::${ConnectS3BucketName}
+              Fn::Sub: arn:aws:s3:::${ConnectS3BucketName}/*
       Path: /
       ManagedPolicyArns:
       - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
